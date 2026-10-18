@@ -283,45 +283,11 @@
 
                 <div class="video-items-active">
 
+                    {% for video_id in youtube_videos %}
                     <div class="video-items text-center">
-                        <iframe src="https://www.youtube.com/embed/CicQIuG8hBo"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
+                        {% include 'partials/_youtube_embed.html' with video_id=video_id %}
                     </div>
-
-                    <div class="video-items text-center">
-                        <iframe src="https://www.youtube.com/embed/rIz00N40bag"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-
-                    <div class="video-items text-center">
-                        <iframe src="https://www.youtube.com/embed/CONfhrASy44"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-
-                    <div class="video-items text-center">
-                        <iframe src="https://www.youtube.com/embed/lq6fL2ROWf8"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-
-                    <div class="video-items text-center">
-                        <iframe src="https://www.youtube.com/embed/0VxlQlacWV4"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
+                    {% endfor %}
 
                 </div>
 
@@ -365,81 +331,14 @@
                 <div class="col-lg-6">
 
                     <div class="testmonial-nav text-center">
-
+                        {% for video_id in youtube_videos %}
                         <div class="single-video">
-
-                            <iframe src="https://www.youtube.com/embed/CicQIuG8hBo"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-
+                            {% include 'partials/_youtube_embed.html' with video_id=video_id %}
                             <div class="video-intro">
                                 <h4>Welcotme To The Best Model Winner Contest</h4>
                             </div>
-
                         </div>
-
-
-                        <div class="single-video">
-
-                            <iframe src="https://www.youtube.com/embed/rIz00N40bag"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-
-                            <div class="video-intro">
-                                <h4>Welcotme To The Best Model Winner Contest</h4>
-                            </div>
-
-                        </div>
-
-
-                        <div class="single-video">
-
-                            <iframe src="https://www.youtube.com/embed/CONfhrASy44"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-
-                            <div class="video-intro">
-                                <h4>Welcotme To The Best Model Winner Contest</h4>
-                            </div>
-
-                        </div>
-
-
-                        <div class="single-video">
-
-                            <iframe src="https://www.youtube.com/embed/lq6fL2ROWf8"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-
-                            <div class="video-intro">
-                                <h4>Welcotme To The Best Model Winner Contest</h4>
-                            </div>
-
-                        </div>
-
-
-                        <div class="single-video">
-
-                            <iframe src="https://www.youtube.com/embed/0VxlQlacWV4"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-
-                            <div class="video-intro">
-                                <h4>Welcotme To The Best Model Winner Contest</h4>
-                            </div>
-
-                        </div>
-
+                        {% endfor %}
                     </div>
 
                 </div>

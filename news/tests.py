@@ -52,6 +52,10 @@ class NewsViewsTests(TestCase):
         self.assertContains(response, "weekly2-news-active")
         self.assertContains(response, "youtube-area")
         self.assertContains(response, "recent-active")
+        html = response.content.decode()
+        self.assertEqual(html.count('src="https://www.youtube.com/embed/CicQIuG8hBo"'), 2)
+        self.assertEqual(html.count('class="video-items text-center"'), 5)
+        self.assertEqual(html.count('class="single-video"'), 5)
 
     def test_ticker_and_weekly_carousels_use_published_articles_and_detail_links(self):
         response = self.client.get(reverse("home"))

@@ -4,6 +4,14 @@ from django.shortcuts import get_object_or_404, render
 
 from .models import Article, Category
 
+YOUTUBE_VIDEOS = (
+    "CicQIuG8hBo",
+    "rIz00N40bag",
+    "CONfhrASy44",
+    "lq6fL2ROWf8",
+    "0VxlQlacWV4",
+)
+
 
 def published_articles():
     return Article.objects.filter(is_published=True).select_related("author", "category")
@@ -48,6 +56,7 @@ def home(request):
         "weekly_articles": weekly_articles,
         "weekly2_articles": weekly2_articles,
         "ticker_articles": ticker_articles,
+        "youtube_videos": YOUTUBE_VIDEOS,
         **category_context,
     })
 
