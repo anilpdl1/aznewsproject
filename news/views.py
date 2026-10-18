@@ -1,7 +1,9 @@
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import F
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import CommentForm
 from .models import Article, Category
 
 YOUTUBE_VIDEOS = (
@@ -14,7 +16,9 @@ YOUTUBE_VIDEOS = (
 
 
 def published_articles():
-    return Article.objects.filter(is_published=True).select_related("author", "category")
+    return Article.objects.filter(is_published=True).select_related(
+        "author", "category"
+    )
 
 
 def home(request):
@@ -40,12 +44,15 @@ def home(request):
         category = matches[0] if len(matches) == 1 else None
         category_articles = (
             articles.filter(category=category).order_by(*ordering)
-            if category else Article.objects.none()
+            if category
+            else Article.objects.none()
         )
         category_context[f"{name.lower()}_articles"] = category_articles
-        category_tabs.append({"name": name, "category": category, "articles": category_articles})
+        category_tabs.append(
+            {"name": name, "category": category, "articles": category_articles}
+        )
 
-    return render(request, "index.html", {
+    context = {
         "trending_articles": trending_articles,
         "featured_trending_articles": trending_articles[:1],
         "bottom_trending_articles": trending_articles[1:4],
@@ -58,32 +65,76 @@ def home(request):
         "ticker_articles": ticker_articles,
         "youtube_videos": YOUTUBE_VIDEOS,
         **category_context,
-    })
+    }
+    return render(request, "index.html", context)
 
 
 def category(request, slug):
     selected_category = get_object_or_404(Category, slug=slug)
-    article_list = published_articles().filter(category=selected_category).order_by("-created_at", "-pk")
+    article_list = (
+        published_articles()
+        .filter(category=selected_category)
+        .order_by("-created_at", "-pk")
+    )
     page_obj = Paginator(article_list, 10).get_page(request.GET.get("page"))
-    return render(request, "categori.html", {"category": selected_category, "page_obj": page_obj, "articles": page_obj.object_list})
+    return render(
+        request,
+        "categori.html",
+        {
+            "category": selected_category,
+            "page_obj": page_obj,
+            "articles": page_obj.object_list,
+        },
+    )
 
 
 def latest_news(request):
     article_list = published_articles().order_by("-created_at", "-pk")
     page_obj = Paginator(article_list, 10).get_page(request.GET.get("page"))
-    return render(request, "latest_news.html", {"page_obj": page_obj, "articles": page_obj.object_list})
+    return render(
+        request,
+        "latest_news.html",
+        {"page_obj": page_obj, "articles": page_obj.object_list},
+    )
 
 
 def details(request, slug):
     article = get_object_or_404(published_articles(), slug=slug)
-    Article.objects.filter(pk=article.pk).update(views_count=F("views_count") + 1)
-    article.refresh_from_db(fields=("views_count",))
-    related_articles = published_articles().filter(category=article.category).exclude(pk=article.pk).order_by("-created_at", "-pk")[:4]
-    return render(request, "single-blog.html", {"article": article, "related_articles": related_articles})
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.article = article
+            comment.save()
+            messages.success(request, "Your comment was submitted for review.")
+            return redirect("details", slug=article.slug)
+    else:
+        comment_form = CommentForm()
+        Article.objects.filter(pk=article.pk).update(views_count=F("views_count") + 1)
+        article.refresh_from_db(fields=("views_count",))
+
+    related_articles = (
+        published_articles()
+        .filter(category=article.category)
+        .exclude(pk=article.pk)
+        .order_by("-created_at", "-pk")[:4]
+    )
+    comments = article.comments.filter(is_approved=True).order_by("-created_at", "-pk")
+    return render(
+        request,
+        "single-blog.html",
+        {
+            "article": article,
+            "related_articles": related_articles,
+            "comments": comments,
+            "comment_form": comment_form,
+        },
+    )
 
 
 def about(request):
-    return render(request,'about.html')
-def contact(request):
-    return render(request,'contact.html')
+    return render(request, "about.html")
 
+
+def contact(request):
+    return render(request, "contact.html")
