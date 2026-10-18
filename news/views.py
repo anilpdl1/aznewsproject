@@ -11,36 +11,34 @@ def published_articles():
 
 def home(request):
     articles = published_articles()
-    trending_articles = list(articles.filter(is_trending=True).order_by("-created_at", "-pk")[:9])
-    whats_new_articles = list(articles.order_by("-created_at", "-pk")[:4])
-    featured_ids = [article.pk for article in (*trending_articles, *whats_new_articles)]
-    weekly_articles = list(
-        articles.exclude(pk__in=featured_ids).order_by("-created_at", "-pk")[:4]
-    )
-    featured_ids.extend(article.pk for article in weekly_articles)
-    weekly2_articles = list(
-        articles.exclude(pk__in=featured_ids).order_by("-created_at", "-pk")[:5]
-    )
-    featured_ids.extend(article.pk for article in weekly2_articles)
-    recent_articles = articles.exclude(pk__in=featured_ids).order_by("-created_at", "-pk")[:8]
-    if not recent_articles.exists():
-        recent_articles = articles.order_by("-created_at", "-pk")[:8]
+    ordering = ("-created_at", "-pk")
+    trending_articles = articles.filter(is_trending=True).order_by(*ordering)[:9]
+    all_published_articles = articles.order_by(*ordering)
+    recent_articles = articles.order_by(*ordering)[:4]
+
+    tab_names = ("Lifestyle", "Travel", "Fashion", "Sports", "Technology")
+    categories_by_name = {}
+    for category in Category.objects.all():
+        categories_by_name.setdefault(category.name.casefold(), []).append(category)
+
     category_tabs = []
-    for name in ("Lifestyle", "Travel", "Fashion", "Sports", "Technology"):
-        category = Category.objects.filter(name__iexact=name).first()
-        category_tabs.append({
-            "name": name,
-            "category": category,
-            "articles": articles.filter(category=category).order_by("-created_at", "-pk")[:4]
-            if category else Article.objects.none(),
-        })
+    category_context = {}
+    for name in tab_names:
+        matches = categories_by_name.get(name.casefold(), [])
+        category = matches[0] if len(matches) == 1 else None
+        category_articles = (
+            articles.filter(category=category).order_by(*ordering)
+            if category else Article.objects.none()
+        )
+        category_context[f"{name.lower()}_articles"] = category_articles
+        category_tabs.append({"name": name, "category": category, "articles": category_articles})
+
     return render(request, "index.html", {
         "trending_articles": trending_articles,
-        "recent_articles": recent_articles,
-        "whats_new_articles": whats_new_articles,
+        "all_published_articles": all_published_articles,
         "category_tabs": category_tabs,
-        "weekly_articles": weekly_articles,
-        "weekly2_articles": weekly2_articles,
+        "recent_articles": recent_articles,
+        **category_context,
     })
 
 

@@ -1,0 +1,24 @@
+{% load static %}
+{% for article in articles %}
+<div class="col-lg-6">
+    <div class="single-what news-card">
+        <div class="what-img">
+            {% if article.feature_image %}
+            <img src="{{ article.feature_image.url }}" alt="{{ article.title }}">
+            {% else %}
+            {% if forloop.counter == 1 %}<img src="{% static 'img/news/whatNews1.jpg' %}" alt="">
+            {% elif forloop.counter == 2 %}<img src="{% static 'img/news/whatNews2.jpg' %}" alt="">
+            {% elif forloop.counter == 3 %}<img src="{% static 'img/news/whatNews3.jpg' %}" alt="">
+            {% else %}<img src="{% static 'img/news/whatNews4.jpg' %}" alt="">{% endif %}
+            {% endif %}
+        </div>
+        <div class="what-cap">
+            <span class="color1"><a href="{% url 'category' article.category.slug %}">{{ article.category.name }}</a></span>
+            <h4><a href="{% url 'details' article.slug %}">{{ article.title }}</a></h4>
+            <small>{{ article.created_at|date:"M d, Y" }} · {{ article.author }}</small>
+        </div>
+    </div>
+</div>
+{% empty %}
+<p>{% if category_name %}No published articles in {{ category_name }} yet.{% else %}No published articles yet.{% endif %}</p>
+{% endfor %}
