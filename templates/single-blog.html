@@ -1,51 +1,56 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}{{ article.title }} | News{% endblock %}
-{% block content %}<div class="about-area"><div class="container"><div class="row"><div class="col-lg-8"><article class="blog_details">
-  <h1>{{ article.title }}</h1><ul class="blog-info-link"><li><a href="{% url 'category' article.category.slug %}">{{ article.category.name }}</a></li><li>{{ article.author }}</li><li>{{ article.created_at|date:"M d, Y" }}</li><li>{{ article.views_count }} views</li></ul>
-  {% if article.feature_image %}<img class="img-fluid" src="{{ article.feature_image.url }}" alt="{{ article.title }}">{% endif %}
-  <div class="article-content">{{ article.content|linebreaks }}</div>
-  {% if messages %}
-  <div class="alert alert-success" role="status">
-    {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+{% extends 'base.html' %} {% load static %} {% block title %}{{ article.title }}
+| News{% endblock %} {% block content %}
+<div class="about-area">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <article class="blog_details">
+          <h1>{{ article.title }}</h1>
+          <ul class="blog-info-link">
+            <li>
+              <a href="{% url 'category' article.category.slug %}"
+                >{{ article.category.name }}</a
+              >
+            </li>
+            <li>{{ article.author }}</li>
+            <li>{{ article.created_at|date:"M d, Y" }}</li>
+            <li>{{ article.views_count }} views</li>
+          </ul>
+          {% if article.feature_image %}<img
+            class="img-fluid"
+            src="{{ article.feature_image.url }}"
+            alt="{{ article.title }}"
+          />{% endif %}
+          <div class="article-content">{{ article.content|linebreaks }}</div>
+        </article>
+      </div>
+      <aside class="col-lg-4">
+        <div class="blog_right_sidebar">
+          <h3>Related News</h3>
+          {% for related in related_articles %}
+          <article class="media post_item">
+            {% if related.feature_image %}<img
+              src="{{ related.feature_image.url }}"
+              alt="{{ related.title }}"
+              width="80"
+            />{% else %}<img
+              src="{% static 'img/news/recent1.jpg' %}"
+              alt=""
+              width="80"
+            />{% endif %}
+            <div class="media-body">
+              <a href="{% url 'details' related.slug %}"
+                ><h3>{{ related.title }}</h3></a
+              >
+              <p>{{ related.created_at|date:"M d, Y" }}</p>
+            </div>
+          </article>
+          {% empty %}
+          <p>No related articles yet.</p>
+          {% endfor %}
+        </div>
+      </aside>
+    </div>
   </div>
-  {% endif %}
-  <section class="comments-area mt-50" id="comments">
-    <h3>Comments ({{ comments|length }})</h3>
-    {% for comment in comments %}
-    <article class="single-comment mb-30">
-      <h4>{{ comment.name }}</h4>
-      <small>{{ comment.created_at|date:"M d, Y" }}</small>
-      <div>{{ comment.message|linebreaks }}</div>
-    </article>
-    {% empty %}
-    <p>No approved comments yet.</p>
-    {% endfor %}
-  </section>
-  <section class="comment-form mt-40">
-    <h3>Leave a Comment</h3>
-    <p>Comments appear after moderation.</p>
-    <form method="post" action="{% url 'details' article.slug %}">
-      {% csrf_token %}
-      {{ comment_form.non_field_errors }}
-      <div class="form-group">
-        <label for="{{ comment_form.name.id_for_label }}">Name</label>
-        {{ comment_form.name }}
-        {{ comment_form.name.errors }}
-      </div>
-      <div class="form-group">
-        <label for="{{ comment_form.email.id_for_label }}">Email</label>
-        {{ comment_form.email }}
-        {{ comment_form.email.errors }}
-      </div>
-      <div class="form-group">
-        <label for="{{ comment_form.message.id_for_label }}">Comment</label>
-        {{ comment_form.message }}
-        {{ comment_form.message.errors }}
-      </div>
-      <button type="submit" class="button button-contactForm boxed-btn">
-        Submit Comment
-      </button>
-    </form>
-  </section>
-</article></div><aside class="col-lg-4"><div class="blog_right_sidebar"><h3>Related News</h3>{% for related in related_articles %}<article class="media post_item">{% if related.feature_image %}<img src="{{ related.feature_image.url }}" alt="{{ related.title }}" width="80">{% else %}<img src="{% static 'img/news/recent1.jpg' %}" alt="" width="80">{% endif %}<div class="media-body"><a href="{% url 'details' related.slug %}"><h3>{{ related.title }}</h3></a><p>{{ related.created_at|date:"M d, Y" }}</p></div></article>{% empty %}<p>No related articles yet.</p>{% endfor %}</div></aside></div></div></div>{% endblock %}
+</div>
+{% endblock %}

@@ -1,11 +1,8 @@
-from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import F
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 
-from .forms import CommentForm
 from .models import Article, Category
-
 YOUTUBE_VIDEOS = (
     "CicQIuG8hBo",
     "rIz00N40bag",
@@ -52,21 +49,24 @@ def home(request):
             {"name": name, "category": category, "articles": category_articles}
         )
 
-    context = {
-        "trending_articles": trending_articles,
-        "featured_trending_articles": trending_articles[:1],
-        "bottom_trending_articles": trending_articles[1:4],
-        "side_trending_articles": trending_articles[4:9],
-        "all_published_articles": all_published_articles,
-        "category_tabs": category_tabs,
-        "recent_articles": recent_articles,
-        "weekly_articles": weekly_articles,
-        "weekly2_articles": weekly2_articles,
-        "ticker_articles": ticker_articles,
-        "youtube_videos": YOUTUBE_VIDEOS,
-        **category_context,
-    }
-    return render(request, "index.html", context)
+    return render(
+        request,
+        "index.html",
+        {
+            "trending_articles": trending_articles,
+            "featured_trending_articles": trending_articles[:1],
+            "bottom_trending_articles": trending_articles[1:4],
+            "side_trending_articles": trending_articles[4:9],
+            "all_published_articles": all_published_articles,
+            "category_tabs": category_tabs,
+            "recent_articles": recent_articles,
+            "weekly_articles": weekly_articles,
+            "weekly2_articles": weekly2_articles,
+            "ticker_articles": ticker_articles,
+            "youtube_videos": YOUTUBE_VIDEOS,
+            **category_context,
+        },
+    )
 
 
 def category(request, slug):
@@ -100,35 +100,18 @@ def latest_news(request):
 
 def details(request, slug):
     article = get_object_or_404(published_articles(), slug=slug)
-    if request.method == "POST":
-        comment_form = CommentForm(request.POST)
-        if comment_form.is_valid():
-            comment = comment_form.save(commit=False)
-            comment.article = article
-            comment.save()
-            messages.success(request, "Your comment was submitted for review.")
-            return redirect("details", slug=article.slug)
-    else:
-        comment_form = CommentForm()
-        Article.objects.filter(pk=article.pk).update(views_count=F("views_count") + 1)
-        article.refresh_from_db(fields=("views_count",))
-
+    Article.objects.filter(pk=article.pk).update(views_count=F("views_count") + 1)
+    article.refresh_from_db(fields=("views_count",))
     related_articles = (
         published_articles()
         .filter(category=article.category)
         .exclude(pk=article.pk)
         .order_by("-created_at", "-pk")[:4]
     )
-    comments = article.comments.filter(is_approved=True).order_by("-created_at", "-pk")
     return render(
         request,
         "single-blog.html",
-        {
-            "article": article,
-            "related_articles": related_articles,
-            "comments": comments,
-            "comment_form": comment_form,
-        },
+        {"article": article, "related_articles": related_articles},
     )
 
 

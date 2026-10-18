@@ -2,45 +2,30 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Article, Category, Comment
+from .models import Article, Category
 
 
 class NewsViewsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author = get_user_model().objects.create_user(
-            username="reporter", password="test-password"
-        )
+        cls.author = get_user_model().objects.create_user(username="reporter", password="test-password")
         cls.category = Category.objects.create(name="Lifestyle", slug="lifestyle")
         cls.other_category = Category.objects.create(name="Travel", slug="travel")
         cls.articles = [
             Article.objects.create(
-                title=f"Story {i}",
-                slug=f"story-{i}",
-                content=f"Content {i}",
-                author=cls.author,
-                category=cls.category,
-                is_published=True,
+                title=f"Story {i}", slug=f"story-{i}", content=f"Content {i}",
+                author=cls.author, category=cls.category, is_published=True,
                 is_trending=(i == 0),
             )
             for i in range(12)
         ]
         cls.other_article = Article.objects.create(
-            title="Travel story",
-            slug="travel-story",
-            content="Travel text",
-            author=cls.author,
-            category=cls.other_category,
-            is_published=True,
+            title="Travel story", slug="travel-story", content="Travel text",
+            author=cls.author, category=cls.other_category, is_published=True,
         )
         cls.draft = Article.objects.create(
-            title="Secret draft",
-            slug="secret-draft",
-            content="Private",
-            author=cls.author,
-            category=cls.category,
-            is_published=False,
-            is_trending=True,
+            title="Secret draft", slug="secret-draft", content="Private",
+            author=cls.author, category=cls.category, is_published=False, is_trending=True,
         )
 
     def test_home_shows_only_published_articles_and_category_tabs(self):
@@ -49,18 +34,14 @@ class NewsViewsTests(TestCase):
         self.assertContains(response, "Story 0")
         self.assertContains(response, "Lifestyle")
         self.assertNotContains(response, "Secret draft")
-        self.assertEqual(
-            list(response.context["trending_articles"]), [self.articles[0]]
-        )
+        self.assertEqual(list(response.context["trending_articles"]), [self.articles[0]])
 
     def test_home_trending_section_only_contains_published_trending_articles(self):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
-        trending_html = (
-            response.content.decode()
-            .split('<div class="trending-area fix">', 1)[1]
-            .split("<!-- Trending Area End -->", 1)[0]
-        )
+        trending_html = response.content.decode().split('<div class="trending-area fix">', 1)[1].split(
+            "<!-- Trending Area End -->", 1
+        )[0]
         self.assertIn("Story 0", trending_html)
         self.assertNotIn("Story 1", trending_html)
         self.assertNotIn("Secret draft", trending_html)
@@ -72,9 +53,7 @@ class NewsViewsTests(TestCase):
         self.assertContains(response, "youtube-area")
         self.assertContains(response, "recent-active")
         html = response.content.decode()
-        self.assertEqual(
-            html.count('src="https://www.youtube.com/embed/CicQIuG8hBo"'), 2
-        )
+        self.assertEqual(html.count('src="https://www.youtube.com/embed/CicQIuG8hBo"'), 2)
         self.assertEqual(html.count('class="video-items text-center"'), 5)
         self.assertEqual(html.count('class="single-video"'), 5)
 
@@ -82,22 +61,12 @@ class NewsViewsTests(TestCase):
         response = self.client.get(reverse("home"))
         html = response.content.decode()
         ticker_html = html.split('<ul id="js-news"', 1)[1].split("</ul>", 1)[0]
-        weekly_html = html.split('class="weekly-news-active', 1)[1].split(
-            "<!-- End Weekly-News -->", 1
-        )[0]
-        weekly2_html = html.split('class="weekly2-news-active', 1)[1].split(
-            "<!-- End Weekly2-News -->", 1
-        )[0]
+        weekly_html = html.split('class="weekly-news-active', 1)[1].split("<!-- End Weekly-News -->", 1)[0]
+        weekly2_html = html.split('class="weekly2-news-active', 1)[1].split("<!-- End Weekly2-News -->", 1)[0]
 
         self.assertEqual(len(response.context["ticker_articles"]), 5)
-        self.assertEqual(
-            list(response.context["weekly_articles"]),
-            list(response.context["recent_articles"]),
-        )
-        self.assertEqual(
-            list(response.context["weekly2_articles"]),
-            list(response.context["ticker_articles"]),
-        )
+        self.assertEqual(list(response.context["weekly_articles"]), list(response.context["recent_articles"]))
+        self.assertEqual(list(response.context["weekly2_articles"]), list(response.context["ticker_articles"]))
         self.assertIn("Travel story", ticker_html)
         self.assertIn(reverse("details", args=["travel-story"]), ticker_html)
         self.assertNotIn("Secret draft", html)
@@ -111,15 +80,9 @@ class NewsViewsTests(TestCase):
         response = self.client.get(reverse("home"))
         html = response.content.decode()
         all_tab_html = html.split('id="nav-home"', 1)[1].split('id="nav-panel-1"', 1)[0]
-        lifestyle_tab_html = html.split('id="nav-panel-1"', 1)[1].split(
-            'id="nav-panel-2"', 1
-        )[0]
-        travel_tab_html = html.split('id="nav-panel-2"', 1)[1].split(
-            'id="nav-panel-3"', 1
-        )[0]
-        sports_tab_html = html.split('id="nav-panel-4"', 1)[1].split(
-            'id="nav-panel-5"', 1
-        )[0]
+        lifestyle_tab_html = html.split('id="nav-panel-1"', 1)[1].split('id="nav-panel-2"', 1)[0]
+        travel_tab_html = html.split('id="nav-panel-2"', 1)[1].split('id="nav-panel-3"', 1)[0]
+        sports_tab_html = html.split('id="nav-panel-4"', 1)[1].split('id="nav-panel-5"', 1)[0]
 
         self.assertEqual(response.context["all_published_articles"].count(), 13)
         self.assertEqual(response.context["lifestyle_articles"].count(), 12)
@@ -143,11 +106,9 @@ class NewsViewsTests(TestCase):
 
     def test_home_recent_articles_are_newest_published_articles(self):
         response = self.client.get(reverse("home"))
-        recent_html = (
-            response.content.decode()
-            .split('<div class="recent-articles">', 1)[1]
-            .split("<!-- Recent Articles End -->", 1)[0]
-        )
+        recent_html = response.content.decode().split('<div class="recent-articles">', 1)[1].split(
+            "<!-- Recent Articles End -->", 1
+        )[0]
         recent_articles = list(response.context["recent_articles"])
 
         self.assertEqual(len(recent_articles), 4)
@@ -165,40 +126,15 @@ class NewsViewsTests(TestCase):
         self.assertEqual(response.context["page_obj"].paginator.count, 12)
         self.assertNotContains(response, "Travel story")
         self.assertContains(response, "?page=2")
-        self.assertIn(
-            reverse("category", args=["lifestyle"]), response.request["PATH_INFO"]
-        )
-        second_page = self.client.get(
-            reverse("category", args=["lifestyle"]), {"page": "2"}
-        )
+        self.assertIn(reverse("category", args=["lifestyle"]), response.request["PATH_INFO"])
+        second_page = self.client.get(reverse("category", args=["lifestyle"]), {"page": "2"})
         self.assertEqual(len(second_page.context["articles"]), 2)
-        self.assertTrue(
-            all(
-                article.category == self.category
-                for article in second_page.context["articles"]
-            )
-        )
-        self.assertEqual(
-            len(
-                self.client.get(
-                    reverse("category", args=["lifestyle"]), {"page": "invalid"}
-                ).context["articles"]
-            ),
-            10,
-        )
-        self.assertEqual(
-            len(
-                self.client.get(
-                    reverse("category", args=["lifestyle"]), {"page": "999"}
-                ).context["articles"]
-            ),
-            2,
-        )
+        self.assertTrue(all(article.category == self.category for article in second_page.context["articles"]))
+        self.assertEqual(len(self.client.get(reverse("category", args=["lifestyle"]), {"page": "invalid"}).context["articles"]), 10)
+        self.assertEqual(len(self.client.get(reverse("category", args=["lifestyle"]), {"page": "999"}).context["articles"]), 2)
 
     def test_unknown_category_returns_404(self):
-        self.assertEqual(
-            self.client.get(reverse("category", args=["missing"])).status_code, 404
-        )
+        self.assertEqual(self.client.get(reverse("category", args=["missing"])).status_code, 404)
 
     def test_latest_news_orders_and_paginates_published_articles(self):
         response = self.client.get(reverse("latest_news"))
@@ -208,14 +144,7 @@ class NewsViewsTests(TestCase):
         self.assertNotContains(response, "Secret draft")
         self.assertEqual(response.context["articles"][0], self.other_article)
         self.assertContains(response, "?page=2")
-        self.assertEqual(
-            len(
-                self.client.get(reverse("latest_news"), {"page": "2"}).context[
-                    "articles"
-                ]
-            ),
-            3,
-        )
+        self.assertEqual(len(self.client.get(reverse("latest_news"), {"page": "2"}).context["articles"]), 3)
 
     def test_detail_increments_counter_and_shows_related_articles(self):
         response = self.client.get(reverse("details", args=["story-0"]))
@@ -236,65 +165,10 @@ class NewsViewsTests(TestCase):
         self.assertEqual(self.articles[0].views_count, 2)
 
     def test_unpublished_or_missing_detail_returns_404_without_increment(self):
-        self.assertEqual(
-            self.client.get(reverse("details", args=["secret-draft"])).status_code, 404
-        )
-        self.assertEqual(
-            self.client.get(reverse("details", args=["unknown"])).status_code, 404
-        )
+        self.assertEqual(self.client.get(reverse("details", args=["secret-draft"])).status_code, 404)
+        self.assertEqual(self.client.get(reverse("details", args=["unknown"])).status_code, 404)
         self.draft.refresh_from_db()
         self.assertEqual(self.draft.views_count, 0)
-
-    def test_detail_shows_only_approved_comments(self):
-        approved_comment = Comment.objects.create(
-            article=self.articles[0],
-            name="Approved reader",
-            email="approved@example.com",
-            message="Visible comment",
-            is_approved=True,
-        )
-        Comment.objects.create(
-            article=self.articles[0],
-            name="Pending reader",
-            email="pending@example.com",
-            message="Hidden until approved",
-        )
-
-        response = self.client.get(reverse("details", args=["story-0"]))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Visible comment")
-        self.assertNotContains(response, "Hidden until approved")
-        self.assertEqual(list(response.context["comments"]), [approved_comment])
-
-    def test_comment_submission_is_saved_pending_approval(self):
-        response = self.client.post(
-            reverse("details", args=["story-0"]),
-            {
-                "name": "New reader",
-                "email": "new@example.com",
-                "message": "Please review this comment.",
-            },
-            follow=True,
-        )
-
-        self.assertRedirects(response, reverse("details", args=["story-0"]))
-        comment = Comment.objects.get(article=self.articles[0])
-        self.assertFalse(comment.is_approved)
-        self.assertEqual(self.articles[0].views_count, 0)
-
-        self.assertContains(response, "submitted for review")
-        self.assertNotContains(response, "Please review this comment.")
-
-    def test_invalid_comment_submission_does_not_create_comment(self):
-        response = self.client.post(
-            reverse("details", args=["story-0"]),
-            {"name": "Reader", "email": "invalid-email", "message": ""},
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["comment_form"].errors)
-        self.assertFalse(Comment.objects.filter(article=self.articles[0]).exists())
 
 
 class EmptyHomeViewTests(TestCase):
