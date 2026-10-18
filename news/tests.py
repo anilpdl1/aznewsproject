@@ -53,6 +53,25 @@ class NewsViewsTests(TestCase):
         self.assertContains(response, "youtube-area")
         self.assertContains(response, "recent-active")
 
+    def test_ticker_and_weekly_carousels_use_published_articles_and_detail_links(self):
+        response = self.client.get(reverse("home"))
+        html = response.content.decode()
+        ticker_html = html.split('<ul id="js-news"', 1)[1].split("</ul>", 1)[0]
+        weekly_html = html.split('class="weekly-news-active', 1)[1].split("<!-- End Weekly-News -->", 1)[0]
+        weekly2_html = html.split('class="weekly2-news-active', 1)[1].split("<!-- End Weekly2-News -->", 1)[0]
+
+        self.assertEqual(len(response.context["ticker_articles"]), 5)
+        self.assertEqual(list(response.context["weekly_articles"]), list(response.context["recent_articles"]))
+        self.assertEqual(list(response.context["weekly2_articles"]), list(response.context["ticker_articles"]))
+        self.assertIn("Travel story", ticker_html)
+        self.assertIn(reverse("details", args=["travel-story"]), ticker_html)
+        self.assertNotIn("Secret draft", html)
+        self.assertNotIn("Welcome To The Best Model Winner Contest", weekly_html)
+        self.assertNotIn("Welcome To The Best Model Winner Contest", weekly2_html)
+        self.assertIn("Story 11", weekly_html)
+        self.assertIn("Travel story", weekly2_html)
+        self.assertIn(reverse("details", args=["travel-story"]), weekly2_html)
+
     def test_home_whats_new_tabs_filter_by_category_and_link_articles(self):
         response = self.client.get(reverse("home"))
         html = response.content.decode()
@@ -102,6 +121,11 @@ class NewsViewsTests(TestCase):
         self.assertEqual(len(response.context["articles"]), 10)
         self.assertEqual(response.context["page_obj"].paginator.count, 12)
         self.assertNotContains(response, "Travel story")
+        self.assertContains(response, "?page=2")
+        self.assertIn(reverse("category", args=["lifestyle"]), response.request["PATH_INFO"])
+        second_page = self.client.get(reverse("category", args=["lifestyle"]), {"page": "2"})
+        self.assertEqual(len(second_page.context["articles"]), 2)
+        self.assertTrue(all(article.category == self.category for article in second_page.context["articles"]))
         self.assertEqual(len(self.client.get(reverse("category", args=["lifestyle"]), {"page": "invalid"}).context["articles"]), 10)
         self.assertEqual(len(self.client.get(reverse("category", args=["lifestyle"]), {"page": "999"}).context["articles"]), 2)
 
@@ -115,16 +139,26 @@ class NewsViewsTests(TestCase):
         self.assertEqual(response.context["page_obj"].paginator.count, 13)
         self.assertNotContains(response, "Secret draft")
         self.assertEqual(response.context["articles"][0], self.other_article)
+        self.assertContains(response, "?page=2")
         self.assertEqual(len(self.client.get(reverse("latest_news"), {"page": "2"}).context["articles"]), 3)
 
     def test_detail_increments_counter_and_shows_related_articles(self):
         response = self.client.get(reverse("details", args=["story-0"]))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Content 0")
+        self.assertContains(response, "Story 0")
         self.articles[0].refresh_from_db()
         self.assertEqual(self.articles[0].views_count, 1)
         self.assertContains(response, "Story 1")
         self.assertNotContains(response, "Travel story")
         self.assertNotContains(response, "Secret draft")
+        self.assertLessEqual(len(response.context["related_articles"]), 4)
+        self.assertNotIn(self.articles[0], response.context["related_articles"])
+        self.assertNotIn(self.draft, response.context["related_articles"])
+
+        self.client.get(reverse("details", args=["story-0"]))
+        self.articles[0].refresh_from_db()
+        self.assertEqual(self.articles[0].views_count, 2)
 
     def test_unpublished_or_missing_detail_returns_404_without_increment(self):
         self.assertEqual(self.client.get(reverse("details", args=["secret-draft"])).status_code, 404)
@@ -142,3 +176,12 @@ class EmptyHomeViewTests(TestCase):
         self.assertContains(response, "No published articles yet.")
         self.assertContains(response, "No published articles in Technology yet.")
         self.assertContains(response, "No published articles in Lifestyle yet.")
+        self.assertNotContains(response, 'id="js-news"')
+
+        category = Category.objects.create(name="Empty", slug="empty")
+        category_response = self.client.get(reverse("category", args=[category.slug]))
+        latest_response = self.client.get(reverse("latest_news"))
+        self.assertEqual(category_response.status_code, 200)
+        self.assertEqual(latest_response.status_code, 200)
+        self.assertContains(category_response, "No published articles found.")
+        self.assertContains(latest_response, "No published articles found.")

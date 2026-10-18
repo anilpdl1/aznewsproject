@@ -21,8 +21,36 @@
       });
     };
 
-// Weekly-2 Acticve
-    $('.weekly-news-active').slick({
+// Fit the existing carousel settings to however many published cards are present.
+    function initNewsCarousel(selector, itemSelector, options) {
+      $(selector).each(function () {
+        var $carousel = $(this);
+        var itemCount = $carousel.children(itemSelector).length;
+        if (!itemCount) return;
+
+        function fit(settings) {
+          var fitted = $.extend({}, settings);
+          fitted.slidesToShow = Math.min(settings.slidesToShow || 1, itemCount);
+          fitted.slidesToScroll = Math.min(settings.slidesToScroll || 1, itemCount);
+          if (settings.infinite !== undefined) fitted.infinite = settings.infinite && itemCount > fitted.slidesToShow;
+          if (settings.autoplay !== undefined) fitted.autoplay = settings.autoplay && itemCount > fitted.slidesToShow;
+          if (settings.initialSlide !== undefined) {
+            fitted.initialSlide = itemCount > fitted.slidesToShow ? Math.min(settings.initialSlide, itemCount - 1) : 0;
+          }
+          return fitted;
+        }
+
+        var fittedOptions = fit(options);
+        fittedOptions.responsive = (options.responsive || []).map(function (breakpoint) {
+          if (typeof breakpoint.settings === 'string') return breakpoint;
+          return $.extend({}, breakpoint, { settings: fit(breakpoint.settings) });
+        });
+        $carousel.slick(fittedOptions);
+      });
+    }
+
+// Weekly-2 Active
+    initNewsCarousel('.weekly-news-active', '.weekly-single', {
         dots: true,
         infinite: true,
         speed: 500,
@@ -63,7 +91,7 @@
     });
 
     // Weekly-2 Acticve
-    $('.weekly2-news-active').slick({
+    initNewsCarousel('.weekly2-news-active', '.weekly2-single', {
         dots: true,
         infinite: true,
         speed: 600,
@@ -105,7 +133,7 @@
     });
 
     // recent-active
-    $('.recent-active').slick({
+    initNewsCarousel('.recent-active', '.single-recent', {
         dots: true,
         infinite: true,
         speed: 600,

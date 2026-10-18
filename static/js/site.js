@@ -1,6 +1,9 @@
 $(function () {
      // start the ticker 
-	$('#js-news').ticker();
+	var $newsTicker = $('#js-news');
+	if ($newsTicker.length && $newsTicker.children('li').length) {
+		$newsTicker.ticker({ titleText: 'Latest' });
+	}
 	
 	// hide the release history when the page loads
 	$('#release-wrapper').css('margin-top', '-' + ($('#release-wrapper').height() + 20) + 'px');

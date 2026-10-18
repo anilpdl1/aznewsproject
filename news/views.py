@@ -12,9 +12,13 @@ def published_articles():
 def home(request):
     articles = published_articles()
     ordering = ("-created_at", "-pk")
-    trending_articles = articles.filter(is_trending=True).order_by(*ordering)[:9]
-    all_published_articles = articles.order_by(*ordering)
-    recent_articles = articles.order_by(*ordering)[:4]
+    latest_articles = articles.order_by(*ordering)
+    trending_articles = list(articles.filter(is_trending=True).order_by(*ordering)[:9])
+    all_published_articles = latest_articles
+    recent_articles = latest_articles[:4]
+    weekly_articles = recent_articles
+    ticker_articles = latest_articles[:5]
+    weekly2_articles = ticker_articles
 
     tab_names = ("Lifestyle", "Travel", "Fashion", "Sports", "Technology")
     categories_by_name = {}
@@ -35,9 +39,15 @@ def home(request):
 
     return render(request, "index.html", {
         "trending_articles": trending_articles,
+        "featured_trending_articles": trending_articles[:1],
+        "bottom_trending_articles": trending_articles[1:4],
+        "side_trending_articles": trending_articles[4:9],
         "all_published_articles": all_published_articles,
         "category_tabs": category_tabs,
         "recent_articles": recent_articles,
+        "weekly_articles": weekly_articles,
+        "weekly2_articles": weekly2_articles,
+        "ticker_articles": ticker_articles,
         **category_context,
     })
 

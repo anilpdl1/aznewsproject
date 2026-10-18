@@ -8,6 +8,23 @@
 
 {% block content %}
 
+{% if ticker_articles %}
+<section class="breaking-news-area py-2" aria-label="Latest headlines">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <div class="breaking-news-label">Latest headlines</div>
+                <ul id="js-news" class="js-hidden">
+                    {% for article in ticker_articles %}
+                    <li><a href="{% url 'details' article.slug %}">{{ article.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- =========================================================
      TRENDING AREA START
      ========================================================= -->
@@ -16,7 +33,7 @@
         <div class="trending-main">
             <div class="row">
                 <div class="col-lg-8">
-                    {% for article in trending_articles|slice:":1" %}
+                    {% for article in featured_trending_articles %}
                     <div class="trending-top mb-30">
                         <div class="trend-top-img">
                             {% if article.feature_image %}
@@ -36,7 +53,7 @@
 
                     <div class="trending-bottom">
                         <div class="row">
-                            {% for article in trending_articles|slice:"1:4" %}
+                            {% for article in bottom_trending_articles %}
                             <div class="col-lg-4">
                                 <div class="single-bottom mb-35">
                                     <div class="trend-bottom-img mb-30">
@@ -58,7 +75,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                    {% for article in trending_articles|slice:"4:9" %}
+                    {% for article in side_trending_articles %}
                     <div class="trand-right-single d-flex">
                         <div class="trand-right-img">
                             {% if article.feature_image %}<img src="{{ article.feature_image.url }}" alt="{{ article.title }}">
@@ -86,9 +103,6 @@
 
 <!-- =========================================================
      WEEKLY NEWS START
-     TODO (Later Phase):
-     - Load weekly news dynamically from the database.
-     - Connect each news item to its detail page.
      ========================================================= -->
 <div class="weekly-news-area pt-50">
 
@@ -109,70 +123,22 @@
                 <div class="col-12">
 
                     <div class="weekly-news-active dot-style d-flex dot-style">
-
-                        <div class="weekly-single">
+                        {% for article in weekly_articles %}
+                        <div class="weekly-single{% if forloop.first %} active{% endif %}">
                             <div class="weekly-img">
-                                <img src="{% static 'img/news/weeklyNews2.jpg' %}" alt="">
+                                {% if article.feature_image %}<img src="{{ article.feature_image.url }}" alt="{{ article.title }}">
+                                {% elif forloop.counter == 1 %}<img src="{% static 'img/news/weeklyNews1.jpg' %}" alt="">
+                                {% elif forloop.counter == 2 %}<img src="{% static 'img/news/weeklyNews2.jpg' %}" alt="">
+                                {% else %}<img src="{% static 'img/news/weeklyNews3.jpg' %}" alt="">{% endif %}
                             </div>
-
                             <div class="weekly-caption">
-                                <span class="color1">Strike</span>
-
-                                <!-- TODO (Later Phase): Connect to article detail page -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
+                                <span class="color1">{{ article.category.name }}</span>
+                                <h4><a href="{% url 'details' article.slug %}">{{ article.title }}</a></h4>
+                                <small>{{ article.created_at|date:"M d, Y" }}</small>
                             </div>
                         </div>
-
-
-                        <div class="weekly-single active">
-                            <div class="weekly-img">
-                                <img src="{% static 'img/news/weeklyNews1.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly-caption">
-                                <span class="color1">Strike</span>
-
-                                <!-- TODO (Later Phase): Connect to article detail page -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-                            </div>
-                        </div>
-
-
-                        <div class="weekly-single">
-                            <div class="weekly-img">
-                                <img src="{% static 'img/news/weeklyNews3.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly-caption">
-                                <span class="color1">Strike</span>
-
-                                <!-- TODO (Later Phase): Connect to article detail page -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-                            </div>
-                        </div>
-
-
-                        <div class="weekly-single">
-                            <div class="weekly-img">
-                                <img src="{% static 'img/news/weeklyNews1.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly-caption">
-                                <span class="color1">Strike</span>
-
-                                <!-- TODO (Later Phase): Connect to article detail page -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-                            </div>
-                        </div>
-
+                        {% empty %}<p>No published articles yet.</p>
+                        {% endfor %}
                     </div>
 
                 </div>
@@ -270,117 +236,23 @@
                 <div class="col-12">
 
                     <div class="weekly2-news-active dot-style d-flex dot-style">
-
+                        {% for article in weekly2_articles %}
                         <div class="weekly2-single">
-
                             <div class="weekly2-img">
-                                <img src="{% static 'img/news/weekly2News1.jpg' %}" alt="">
+                                {% if article.feature_image %}<img src="{{ article.feature_image.url }}" alt="{{ article.title }}">
+                                {% elif forloop.counter == 1 %}<img src="{% static 'img/news/weekly2News1.jpg' %}" alt="">
+                                {% elif forloop.counter == 2 %}<img src="{% static 'img/news/weekly2News2.jpg' %}" alt="">
+                                {% elif forloop.counter == 3 %}<img src="{% static 'img/news/weekly2News3.jpg' %}" alt="">
+                                {% else %}<img src="{% static 'img/news/weekly2News4.jpg' %}" alt="">{% endif %}
                             </div>
-
                             <div class="weekly2-caption">
-
-                                <span class="color1">Corporate</span>
-
-                                <!-- TODO (Later Phase): Replace with actual publication date -->
-                                <p>25 Jan 2020</p>
-
-                                <!-- TODO (Later Phase): Connect to article details -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-
+                                <span class="color1">{{ article.category.name }}</span>
+                                <p>{{ article.created_at|date:"d M Y" }}</p>
+                                <h4><a href="{% url 'details' article.slug %}">{{ article.title }}</a></h4>
                             </div>
-
                         </div>
-
-
-                        <div class="weekly2-single">
-
-                            <div class="weekly2-img">
-                                <img src="{% static 'img/news/weekly2News2.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly2-caption">
-
-                                <span class="color1">Event night</span>
-
-                                <p>25 Jan 2020</p>
-
-                                <!-- TODO (Later Phase): Connect to article details -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="weekly2-single">
-
-                            <div class="weekly2-img">
-                                <img src="{% static 'img/news/weekly2News3.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly2-caption">
-
-                                <span class="color1">Corporate</span>
-
-                                <p>25 Jan 2020</p>
-
-                                <!-- TODO (Later Phase): Connect to article details -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="weekly2-single">
-
-                            <div class="weekly2-img">
-                                <img src="{% static 'img/news/weekly2News4.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly2-caption">
-
-                                <span class="color1">Event time</span>
-
-                                <p>25 Jan 2020</p>
-
-                                <!-- TODO (Later Phase): Connect to article details -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="weekly2-single">
-
-                            <div class="weekly2-img">
-                                <img src="{% static 'img/news/weekly2News4.jpg' %}" alt="">
-                            </div>
-
-                            <div class="weekly2-caption">
-
-                                <span class="color1">Corporate</span>
-
-                                <p>25 Jan 2020</p>
-
-                                <!-- TODO (Later Phase): Connect to article details -->
-                                <h4>
-                                    <a href="#">Welcome To The Best Model Winner Contest</a>
-                                </h4>
-
-                            </div>
-
-                        </div>
-
+                        {% empty %}<p>No published articles yet.</p>
+                        {% endfor %}
                     </div>
 
                 </div>
