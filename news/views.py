@@ -14,7 +14,17 @@ def home(request):
     trending_articles = list(articles.filter(is_trending=True).order_by("-created_at", "-pk")[:9])
     whats_new_articles = list(articles.order_by("-created_at", "-pk")[:4])
     featured_ids = [article.pk for article in (*trending_articles, *whats_new_articles)]
+    weekly_articles = list(
+        articles.exclude(pk__in=featured_ids).order_by("-created_at", "-pk")[:4]
+    )
+    featured_ids.extend(article.pk for article in weekly_articles)
+    weekly2_articles = list(
+        articles.exclude(pk__in=featured_ids).order_by("-created_at", "-pk")[:5]
+    )
+    featured_ids.extend(article.pk for article in weekly2_articles)
     recent_articles = articles.exclude(pk__in=featured_ids).order_by("-created_at", "-pk")[:8]
+    if not recent_articles.exists():
+        recent_articles = articles.order_by("-created_at", "-pk")[:8]
     category_tabs = []
     for name in ("Lifestyle", "Travel", "Fashion", "Sports", "Technology"):
         category = Category.objects.filter(name__iexact=name).first()
@@ -29,6 +39,8 @@ def home(request):
         "recent_articles": recent_articles,
         "whats_new_articles": whats_new_articles,
         "category_tabs": category_tabs,
+        "weekly_articles": weekly_articles,
+        "weekly2_articles": weekly2_articles,
     })
 
 

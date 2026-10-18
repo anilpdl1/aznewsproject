@@ -36,6 +36,25 @@ class NewsViewsTests(TestCase):
         self.assertNotContains(response, "Secret draft")
         self.assertEqual(list(response.context["trending_articles"]), [self.articles[0]])
 
+    def test_home_weekly_carousels_use_distinct_published_articles(self):
+        response = self.client.get(reverse("home"))
+        weekly_ids = {article.pk for article in response.context["weekly_articles"]}
+        weekly2_ids = {article.pk for article in response.context["weekly2_articles"]}
+        already_featured_ids = {
+            article.pk
+            for article in (
+                *response.context["trending_articles"],
+                *response.context["whats_new_articles"],
+            )
+        }
+
+        self.assertEqual(len(weekly_ids), 4)
+        self.assertEqual(len(weekly2_ids), 4)
+        self.assertFalse(weekly_ids & weekly2_ids)
+        self.assertFalse(weekly_ids & already_featured_ids)
+        self.assertFalse(weekly2_ids & already_featured_ids)
+        self.assertContains(response, reverse("details", args=["story-7"]))
+
     def test_category_filters_and_paginates_articles(self):
         response = self.client.get(reverse("category", args=["lifestyle"]))
         self.assertEqual(response.status_code, 200)
