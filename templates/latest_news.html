@@ -1,12 +1,21 @@
-{% extends 'base.html' %} {% block title %}Latest News{% endblock %} {% block
-content %}
+
+{% extends 'base.html' %}
+
+{% block title %}Latest News{% endblock %}
+
+{% block content %}
 <section class="bradcam_area">
-  <div class="container">
-    <div class="row">
-      <div class="col-xl-12">
-        <div class="bradcam_text"><h3>Latest News</h3></div>
-      </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="bradcam_text">
+                    <h3>Latest News</h3>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </section>
-{% include 'partials/_article_listing.html' %}{% endblock %}
+
+{% include 'partials/_article_listing.html' %}
+
+{% endblock content %}
