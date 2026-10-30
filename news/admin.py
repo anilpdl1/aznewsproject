@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Tag, Article, Comment, ContactMessage
+from .models import Category, Tag, Article, Comment, ContactMessage, Subscriber
 
 
 @admin.register(Category)
@@ -35,12 +35,21 @@ class ArticleAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ("name", "article", "is_approved", "created_at")
     list_filter = ("is_approved", "created_at")
-    search_fields = ("name", "email", "message")
+    search_fields = ("name", "email", "content")
     list_editable = ("is_approved",)
 
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "created_at")
-    search_fields = ("name", "email", "message")
+    list_display = ("name", "email", "subject", "created_at")
+    list_filter = ("created_at",)
+    search_fields = ("name", "email", "subject", "message")
     readonly_fields = ("created_at",)
+
+
+@admin.register(Subscriber)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ("email", "is_active", "subscribed_at")
+    list_filter = ("is_active", "subscribed_at")
+    search_fields = ("email",)
+    list_editable = ("is_active",)

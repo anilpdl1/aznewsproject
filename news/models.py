@@ -64,7 +64,11 @@ class Comment(models.Model):
 
     name = models.CharField(max_length=100)
     email = models.EmailField()
-    message = models.TextField()
+    content = models.TextField()
+
+    @property
+    def message(self):
+        return self.content
 
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -79,6 +83,7 @@ class Comment(models.Model):
 class ContactMessage(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
+    subject = models.CharField(max_length=200)
     message = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,3 +93,15 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.subject} - {self.name}"
+
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-subscribed_at"]
+
+    def __str__(self):
+        return self.email
