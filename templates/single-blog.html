@@ -22,6 +22,16 @@
             alt="{{ article.title }}"
           />{% endif %}
           <div class="article-content">{{ article.content|linebreaks }}</div>
+          <section class="comments-area mt-5">
+            <h3>Comments ({{ comments|length }})</h3>
+            {% for comment in comments %}<div class="comment-list"><strong>{{ comment.name }}</strong><small> {{ comment.created_at|date:"M d, Y" }}</small><p>{{ comment.content|linebreaksbr }}</p></div>{% empty %}<p>No comments yet.</p>{% endfor %}
+            <h3>Leave a Comment</h3>
+            <form method="post" action="{% url 'details' article.slug %}">{% csrf_token %}
+              {% for field in comment_form %}<div class="form-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}</div>{% endfor %}
+              {% for error in comment_form.non_field_errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+              <button class="button button-contactForm" type="submit">Submit Comment</button>
+            </form>
+          </section>
         </article>
       </div>
       <aside class="col-lg-4">

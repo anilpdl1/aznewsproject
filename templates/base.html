@@ -2,7 +2,6 @@
 
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -97,7 +96,7 @@
                                     <nav>
                                         <ul id="navigation">
                                             <li><a href="{% url 'home' %}">Home</a></li>
-                                            <!-- <li><a href="categori.html">Category</a></li> -->
+                                            <li><a href="{% url 'category_index' %}">Category</a></li>
                                             <li><a href="{% url 'about' %}">About</a></li>
                                             <li><a href="{% url 'latest_news' %}">Latest News</a></li>
                                             <li><a href="{% url 'contact' %}">Contact</a></li>
@@ -109,8 +108,8 @@
                                 <div class="header-right-btn f-right d-none d-lg-block">
                                     <i class="fas fa-search special-tag"></i>
                                     <div class="search-box">
-                                        <form action="#">
-                                            <input type="text" placeholder="Search">
+                                        <form action="{% url 'search' %}" method="get">
+                                            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search" aria-label="Search articles">
 
                                         </form>
                                     </div>
@@ -129,6 +128,11 @@
     </header>
 
     <main>
+        <div class="container">
+            {% if messages %}<div class="site-messages" aria-live="polite">
+                {% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+            </div>{% endif %}
+        </div>
         {% block content %}{% endblock %}
     </main>
 
@@ -165,10 +169,10 @@
                                 <p>Heaven fruitful doesn't over les idays appear creeping</p>
                                 <!-- Form -->
                                 <div class="footer-form" >
-                                    <div id="mc_embed_signup">
-                                        <form target="\_blank" action="https\://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
-                                        method="get" class="subscribe_form relative mail_part">
-                                            <input type="email" name="email" id="newsletter-form-email" placeholder="Email Address"
+                                    <div class="newsletter-signup">
+                                        <form action="{% url 'subscribe' %}" method="post" class="subscribe_form relative mail_part">
+                                            {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <input type="email" name="email" id="newsletter-form-email" required placeholder="Email Address"
                                             class="placeholder hide-on-focus" onfocus="this.placeholder = ''"
                                             onblur="this.placeholder = ' Email Address '">
                                             <div class="form-icon">
@@ -258,11 +262,9 @@
 		<script src="{% static 'js/jquery.sticky.js' %}"></script>
 
         <!-- contact js -->
-        <script src="{% static 'js/contact.js' %}"></script>
         <script src="{% static 'js/jquery.form.js' %}"></script>
         <script src="{% static 'js/jquery.validate.min.js' %}"></script>
         <script src="{% static 'js/mail-script.js' %}"></script>
-        <script src="{% static 'js/jquery.ajaxchimp.min.js' %}"></script>
 
 		<!-- Jquery Plugins, main Jquery -->
         <script src="{% static 'js/plugins.js' %}"></script>
