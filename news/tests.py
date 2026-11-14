@@ -46,7 +46,7 @@ class NewsViewsTests(TestCase):
         self.assertNotIn("Story 1", trending_html)
         self.assertNotIn("Secret draft", trending_html)
         self.assertIn(reverse("details", args=["story-0"]), trending_html)
-        self.assertIn("img/trending/trending_top.jpg", trending_html)
+        self.assertNotIn("img/trending/trending_top.jpg", trending_html)
         self.assertEqual(len(response.context["trending_articles"]), 1)
         self.assertContains(response, "weekly-news-active")
         self.assertContains(response, "weekly2-news-active")
@@ -81,27 +81,23 @@ class NewsViewsTests(TestCase):
         html = response.content.decode()
         all_tab_html = html.split('id="nav-home"', 1)[1].split('id="nav-panel-1"', 1)[0]
         lifestyle_tab_html = html.split('id="nav-panel-1"', 1)[1].split('id="nav-panel-2"', 1)[0]
-        travel_tab_html = html.split('id="nav-panel-2"', 1)[1].split('id="nav-panel-3"', 1)[0]
-        sports_tab_html = html.split('id="nav-panel-4"', 1)[1].split('id="nav-panel-5"', 1)[0]
+        travel_tab_html = html.split('id="nav-panel-2"', 1)[1].split('<!-- End Weekly-News -->', 1)[0]
 
         self.assertEqual(response.context["all_published_articles"].count(), 13)
         self.assertEqual(response.context["lifestyle_articles"].count(), 12)
         self.assertEqual(response.context["travel_articles"].count(), 1)
-        self.assertEqual(response.context["fashion_articles"].count(), 0)
-        self.assertEqual(response.context["sports_articles"].count(), 0)
-        self.assertEqual(response.context["technology_articles"].count(), 0)
+        self.assertEqual([tab["name"] for tab in response.context["category_tabs"]], ["Lifestyle", "Travel"])
         self.assertIn("Travel story", all_tab_html)
         self.assertIn("Story 0", all_tab_html)
         self.assertIn("Story 11", lifestyle_tab_html)
         self.assertNotIn("Travel story", lifestyle_tab_html)
         self.assertIn("Travel story", travel_tab_html)
-        self.assertIn("No published articles in Sports yet.", sports_tab_html)
-        self.assertIn('href="#nav-panel-4"', html)
-        self.assertIn('aria-controls="nav-panel-4"', html)
-        self.assertIn('id="nav-panel-4"', html)
+        self.assertIn('href="#nav-panel-2"', html)
+        self.assertIn('aria-controls="nav-panel-2"', html)
+        self.assertIn('id="nav-panel-2"', html)
         self.assertIn(reverse("details", args=["travel-story"]), all_tab_html)
         self.assertIn(reverse("category", args=["travel"]), all_tab_html)
-        self.assertIn("img/news/whatNews1.jpg", html)
+        self.assertNotIn("img/news/whatNews1.jpg", html)
         self.assertNotIn("Secret draft", html)
 
     def test_home_recent_articles_are_newest_published_articles(self):
@@ -117,7 +113,7 @@ class NewsViewsTests(TestCase):
         self.assertIn("Travel story", recent_html)
         self.assertIn(reverse("details", args=["travel-story"]), recent_html)
         self.assertNotIn("Secret draft", recent_html)
-        self.assertIn("img/news/recent1.jpg", recent_html)
+        self.assertNotIn("img/news/recent1.jpg", recent_html)
 
     def test_category_filters_and_paginates_articles(self):
         response = self.client.get(reverse("category", args=["lifestyle"]))
@@ -178,8 +174,7 @@ class EmptyHomeViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No trending articles yet.")
         self.assertContains(response, "No published articles yet.")
-        self.assertContains(response, "No published articles in Technology yet.")
-        self.assertContains(response, "No published articles in Lifestyle yet.")
+        self.assertNotContains(response, "No published articles in Technology yet.")
         self.assertNotContains(response, 'id="js-news"')
 
         category = Category.objects.create(name="Empty", slug="empty")

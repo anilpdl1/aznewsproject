@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, render
 
 from .models import Article, Category, Comment, ContentPage, HomepageVideo, Subscriber
 from .forms import CommentForm, ContactForm, SubscriberForm
+from .context_processors import get_global_categories
 def published_articles():
     return Article.objects.filter(is_published=True).select_related(
         "author", "category"
@@ -27,7 +28,7 @@ def home(request):
     ticker_articles = latest_articles[:5]
     weekly2_articles = ticker_articles
 
-    categories = Category.objects.all()
+    categories = get_global_categories(request)
     category_tabs = []
     category_context = {}
     for category in categories:
@@ -88,7 +89,7 @@ def category_index(request):
             "all_published_articles": article_list,
             "category_tabs": [
                 {"name": item.name, "articles": published_articles().filter(category=item).order_by("-created_at", "-pk")}
-                for item in Category.objects.all()
+                for item in get_global_categories(request)
             ],
         },
     )

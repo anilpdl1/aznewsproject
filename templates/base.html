@@ -51,15 +51,12 @@
                             <div class="row d-flex justify-content-between align-items-center">
                                 <div class="header-info-left">
                                     <ul>
-                                        <li><img src="{% static 'img/icon/header_icon1.png' %}" alt="">34ºc, Sunny </li>
-                                        <li><img src="{% static 'img/icon/header_icon1.png' %}" alt="">Tuesday, 18th June, 2019</li>
+                                        <li><img src="{% static 'img/icon/header_icon1.png' %}" alt="">{% now "l, jS F Y" %}</li>
                                     </ul>
                                 </div>
                                 <div class="header-info-right">
                                     <ul class="header-social">
-                                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-instagram"></i></a></li>
-                                       <li> <a href="#"><i class="fab fa-pinterest-p"></i></a></li>
+                                        {% for social in social_links %}<li><a href="{{ social.url }}" aria-label="{{ social.label }}" target="_blank" rel="noopener noreferrer"><i class="{{ social.icon }}"></i></a></li>{% endfor %}
                                     </ul>
                                 </div>
                             </div>
@@ -96,7 +93,11 @@
                                     <nav>
                                         <ul id="navigation">
                                             <li><a href="{% url 'home' %}">Home</a></li>
-                                            <li><a href="{% url 'category_index' %}">Category</a></li>
+                                            <li><a href="{% url 'category_index' %}">Category</a>
+                                                {% if global_categories %}<ul class="submenu">
+                                                    {% for category in global_categories %}<li><a href="{% url 'category' category.slug %}">{{ category.name }}</a></li>{% endfor %}
+                                                </ul>{% endif %}
+                                            </li>
                                             <li><a href="{% url 'about' %}">About</a></li>
                                             <li><a href="{% url 'latest_news' %}">Latest News</a></li>
                                             <li><a href="{% url 'contact' %}">Contact</a></li>
@@ -155,9 +156,7 @@
                                 </div>
                                 <!-- social -->
                                 <div class="footer-social">
-                                    <a href="#"><i class="fab fa-twitter"></i></a>
-                                    <a href="#"><i class="fab fa-instagram"></i></a>
-                                    <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                                    {% for social in social_links %}<a href="{{ social.url }}" aria-label="{{ social.label }}" target="_blank" rel="noopener noreferrer"><i class="{{ social.icon }}"></i></a>{% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -189,17 +188,10 @@
                     <div class="col-xl-3 col-lg-3 col-md-5 col-sm-6">
                         <div class="single-footer-caption mb-50 mt-60">
                             <div class="footer-tittle">
-                                <h4>Instagram Feed</h4>
-                            </div>
-                            <div class="instagram-gellay">
-                                <ul class="insta-feed">
-                                    <li><a href="#"><img src="{% static 'img/post/instra1.jpg' %}" alt=""></a></li>
-                                    <li><a href="#"><img src="{% static 'img/post/instra2.jpg' %}" alt=""></a></li>
-                                    <li><a href="#"><img src="{% static 'img/post/instra3.jpg' %}" alt=""></a></li>
-                                    <li><a href="#"><img src="{% static 'img/post/instra4.jpg' %}" alt=""></a></li>
-                                    <li><a href="#"><img src="{% static 'img/post/instra5.jpg' %}" alt=""></a></li>
-                                    <li><a href="#"><img src="{% static 'img/post/instra6.jpg' %}" alt=""></a></li>
-                                </ul>
+                                {% for social in social_links %}{% if social.platform == 'instagram' %}
+                                <h4>Instagram</h4>
+                                <p><a href="{{ social.url }}" target="_blank" rel="noopener noreferrer">Follow us on Instagram</a></p>
+                                {% endif %}{% endfor %}
                             </div>
                         </div>
                     </div>

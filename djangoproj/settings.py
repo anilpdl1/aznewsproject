@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "djangoproj.apps.ProjectSummernoteConfig",
     "news",
 ]
 
@@ -63,6 +64,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "news.context_processors.global_categories",
+                "news.context_processors.social_links",
             ],
         },
     },
@@ -133,3 +136,31 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() in ("1", "true", "yes")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "webmaster@localhost")
 CONTACT_NOTIFICATION_EMAIL = os.getenv("CONTACT_NOTIFICATION_EMAIL", "")
+
+
+def _summernote_upload_allowed(request):
+    return request.user.is_authenticated and request.user.is_staff
+
+
+SUMMERNOTE_CONFIG = {
+    "attachment_require_authentication": True,
+    "attachment_filesize_limit": 5 * 1024 * 1024,
+    "test_func_upload_view": _summernote_upload_allowed,
+    "attachment_absolute_uri": False,
+    "summernote": {
+        "toolbar": [
+            ["style", ["style"]],
+            ["font", ["bold", "italic", "underline", "clear"]],
+            ["para", ["ul", "ol", "paragraph"]],
+            ["insert", ["link", "picture"]],
+            ["view", ["fullscreen"]],
+        ],
+    },
+}
+
+SOCIAL_LINKS = {
+    "facebook": os.getenv("SOCIAL_FACEBOOK_URL", ""),
+    "instagram": os.getenv("SOCIAL_INSTAGRAM_URL", ""),
+    "youtube": os.getenv("SOCIAL_YOUTUBE_URL", ""),
+    "x": os.getenv("SOCIAL_X_URL", ""),
+}
