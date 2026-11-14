@@ -2,16 +2,7 @@
 {% for article in articles %}
 <div class="col-lg-6">
     <div class="single-what news-card">
-        <div class="what-img">
-            {% if article.feature_image %}
-            <img src="{{ article.feature_image.url }}" alt="{{ article.title }}">
-            {% else %}
-            {% if forloop.counter == 1 %}<img src="{% static 'img/news/whatNews1.jpg' %}" alt="">
-            {% elif forloop.counter == 2 %}<img src="{% static 'img/news/whatNews2.jpg' %}" alt="">
-            {% elif forloop.counter == 3 %}<img src="{% static 'img/news/whatNews3.jpg' %}" alt="">
-            {% else %}<img src="{% static 'img/news/whatNews4.jpg' %}" alt="">{% endif %}
-            {% endif %}
-        </div>
+        {% if article.feature_image %}<div class="what-img"><img src="{{ article.feature_image.url }}" alt="{{ article.title }}"></div>{% endif %}
         <div class="what-cap">
             <span class="color1"><a href="{% url 'category' article.category.slug %}">{{ article.category.name }}</a></span>
             <h4><a href="{% url 'details' article.slug %}">{{ article.title }}</a></h4>

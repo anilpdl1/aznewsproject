@@ -5,17 +5,11 @@
       <div class="col-lg-8">
         {% for article in articles %}
         <article class="blog_item mb-40">
-          <div class="blog_item_img">
-            {% if article.feature_image %}<img
+          {% if article.feature_image %}<div class="blog_item_img"><img
               class="card-img rounded-0"
               src="{{ article.feature_image.url }}"
               alt="{{ article.title }}"
-            />{% else %}<img
-              class="card-img rounded-0"
-              src="{% static 'img/news/news_card.jpg' %}"
-              alt=""
-            />{% endif %}
-          </div>
+            /></div>{% endif %}
           <div class="blog_details">
             <a class="d-inline-block" href="{% url 'details' article.slug %}"
               ><h2 class="blog-head" style="color: #2d2d2d">

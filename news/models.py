@@ -105,3 +105,34 @@ class Subscriber(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class ContentPage(models.Model):
+    """Editable copy for informational pages such as About."""
+
+    slug = models.SlugField(max_length=80, unique=True)
+    title = models.CharField(max_length=200)
+    body = models.TextField(blank=True)
+    image = models.ImageField(upload_to="pages/", blank=True, null=True)
+    is_published = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return self.title
+
+
+class HomepageVideo(models.Model):
+    title = models.CharField(max_length=200)
+    video_id = models.CharField(max_length=20, help_text="YouTube video ID")
+    category_label = models.CharField(max_length=100, blank=True)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    position = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["position", "pk"]
+
+    def __str__(self):
+        return self.title

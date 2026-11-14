@@ -43,10 +43,6 @@
               src="{{ related.feature_image.url }}"
               alt="{{ related.title }}"
               width="80"
-            />{% else %}<img
-              src="{% static 'img/news/recent1.jpg' %}"
-              alt=""
-              width="80"
             />{% endif %}
             <div class="media-body">
               <a href="{% url 'details' related.slug %}"

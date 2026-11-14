@@ -101,3 +101,43 @@
 //     left: 0;
 //     color: red($color: #000000);
 // }
+
+// Keep recent article cards aligned when titles have different lengths.
+.recent-articles {
+    .recent-active {
+        .slick-track { display: flex; align-items: stretch; }
+        .slick-slide { height: auto; }
+    }
+    .single-recent {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        margin: 0 12px 28px;
+        .what-img {
+            overflow: hidden;
+            aspect-ratio: 16 / 10;
+            img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+        .what-cap {
+            position: static;
+            width: 100%;
+            flex: 1;
+            padding: 14px 0 0;
+            border-radius: 0;
+            h4 {
+                display: -webkit-box;
+                overflow: hidden;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                min-height: 2.8em;
+            }
+            small { display: block; color: #65727c; line-height: 1.5; }
+        }
+        &:hover .what-cap { bottom: auto; }
+    }
+}

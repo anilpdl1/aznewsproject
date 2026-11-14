@@ -8,17 +8,8 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 
-from .models import Article, Category, Comment, Subscriber
+from .models import Article, Category, Comment, ContentPage, HomepageVideo, Subscriber
 from .forms import CommentForm, ContactForm, SubscriberForm
-YOUTUBE_VIDEOS = (
-    "CicQIuG8hBo",
-    "rIz00N40bag",
-    "CONfhrASy44",
-    "lq6fL2ROWf8",
-    "0VxlQlacWV4",
-)
-
-
 def published_articles():
     return Article.objects.filter(is_published=True).select_related(
         "author", "category"
@@ -36,24 +27,14 @@ def home(request):
     ticker_articles = latest_articles[:5]
     weekly2_articles = ticker_articles
 
-    tab_names = ("Lifestyle", "Travel", "Fashion", "Sports", "Technology")
-    categories_by_name = {}
-    for category in Category.objects.all():
-        categories_by_name.setdefault(category.name.casefold(), []).append(category)
-
+    categories = Category.objects.all()
     category_tabs = []
     category_context = {}
-    for name in tab_names:
-        matches = categories_by_name.get(name.casefold(), [])
-        category = matches[0] if len(matches) == 1 else None
-        category_articles = (
-            articles.filter(category=category).order_by(*ordering)
-            if category
-            else Article.objects.none()
-        )
-        category_context[f"{name.lower()}_articles"] = category_articles
+    for category in categories:
+        category_articles = articles.filter(category=category).order_by(*ordering)
+        category_context[f"{category.slug.replace('-', '_')}_articles"] = category_articles
         category_tabs.append(
-            {"name": name, "category": category, "articles": category_articles}
+            {"name": category.name, "category": category, "articles": category_articles}
         )
 
     return render(
@@ -70,7 +51,7 @@ def home(request):
             "weekly_articles": weekly_articles,
             "weekly2_articles": weekly2_articles,
             "ticker_articles": ticker_articles,
-            "youtube_videos": YOUTUBE_VIDEOS,
+            "youtube_videos": HomepageVideo.objects.filter(is_active=True),
             **category_context,
         },
     )
@@ -101,7 +82,15 @@ def category_index(request):
     return render(
         request,
         "categori.html",
-        {"category": None, "page_obj": page_obj, "articles": page_obj.object_list},
+        {
+            "category": None, "page_obj": page_obj, "articles": page_obj.object_list,
+            "show_whats_new": True,
+            "all_published_articles": article_list,
+            "category_tabs": [
+                {"name": item.name, "articles": published_articles().filter(category=item).order_by("-created_at", "-pk")}
+                for item in Category.objects.all()
+            ],
+        },
     )
 
 
@@ -143,7 +132,8 @@ def details(request, slug):
 
 
 def about(request):
-    return render(request, "about.html")
+    page = get_object_or_404(ContentPage, slug="about", is_published=True)
+    return render(request, "about.html", {"page": page})
 
 
 def search(request):

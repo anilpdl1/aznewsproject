@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Category, Tag, Article, Comment, ContactMessage, Subscriber
+from .models import (
+    Article, Category, Comment, ContactMessage, ContentPage, HomepageVideo,
+    Subscriber, Tag,
+)
 
 
 @admin.register(Category)
@@ -53,3 +56,18 @@ class SubscriberAdmin(admin.ModelAdmin):
     list_filter = ("is_active", "subscribed_at")
     search_fields = ("email",)
     list_editable = ("is_active",)
+
+
+@admin.register(ContentPage)
+class ContentPageAdmin(admin.ModelAdmin):
+    list_display = ("title", "slug", "is_published")
+    list_filter = ("is_published",)
+    prepopulated_fields = {"slug": ("title",)}
+
+
+@admin.register(HomepageVideo)
+class HomepageVideoAdmin(admin.ModelAdmin):
+    list_display = ("title", "category_label", "is_active", "position")
+    list_filter = ("is_active",)
+    list_editable = ("is_active", "position")
+    search_fields = ("title", "description", "video_id")
