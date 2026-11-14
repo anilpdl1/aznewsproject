@@ -70,6 +70,7 @@
             <h4 class="widget_title">News</h4>
             <ul class="list cat-list">
               <li><a href="{% url 'latest_news' %}">Latest News</a></li>
+              {% for category in global_categories %}<li><a href="{% url 'category' category.slug %}">{{ category.name }}</a></li>{% endfor %}
             </ul>
           </aside>
         </div>

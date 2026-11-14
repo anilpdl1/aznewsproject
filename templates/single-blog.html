@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static %} {% block title %}{{ article.title }}
+{% extends 'base.html' %} {% load static news_tags %} {% block title %}{{ article.title }}
 | News{% endblock %} {% block content %}
 <div class="about-area">
   <div class="container">
@@ -21,7 +21,7 @@
             src="{{ article.feature_image.url }}"
             alt="{{ article.title }}"
           />{% endif %}
-          <div class="article-content">{{ article.content|linebreaks }}</div>
+          <div class="article-content">{{ article.content|rich_text }}</div>
           <section class="comments-area mt-5">
             <h3>Comments ({{ comments|length }})</h3>
             {% for comment in comments %}<div class="comment-list"><strong>{{ comment.name }}</strong><small> {{ comment.created_at|date:"M d, Y" }}</small><p>{{ comment.content|linebreaksbr }}</p></div>{% empty %}<p>No comments yet.</p>{% endfor %}
