@@ -1,0 +1,11 @@
+{% if advertisement %}
+<div class="managed-advertisement" aria-label="Advertisement">
+  <a href="{{ advertisement.target_url }}" target="_blank" rel="sponsored noopener noreferrer">
+    <img src="{{ advertisement.image.url }}" alt="{{ advertisement.title }}" class="img-fluid">
+  </a>
+</div>
+{% endif %}
+{% if adsense_client_id and adsense_slot_id %}
+<ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_client_id|escape }}" data-ad-slot="{{ adsense_slot_id|escape }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
+{% endif %}

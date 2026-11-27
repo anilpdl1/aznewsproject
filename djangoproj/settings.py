@@ -66,6 +66,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "news.context_processors.global_categories",
                 "news.context_processors.social_links",
+                "news.context_processors.advertising_config",
             ],
         },
     },
@@ -125,6 +126,11 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+ADSENSE_CLIENT_ID = os.getenv("ADSENSE_CLIENT_ID", "")
+ADSENSE_SLOT_IDS = {
+    "header": os.getenv("ADSENSE_SLOT_HEADER", ""),
+    "article": os.getenv("ADSENSE_SLOT_ARTICLE", ""),
+}
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

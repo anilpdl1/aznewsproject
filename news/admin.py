@@ -3,7 +3,7 @@ from django.utils.text import Truncator
 from django_summernote.admin import SummernoteModelAdmin
 from .models import (
     Article, Category, Comment, ContactMessage, ContentPage, HomepageVideo,
-    Subscriber, Tag,
+    Subscriber, Tag, Advertisement,
 )
 
 
@@ -102,3 +102,13 @@ class HomepageVideoAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     list_editable = ("is_active", "position")
     search_fields = ("title", "description", "video_id")
+
+
+@admin.register(Advertisement)
+class AdvertisementAdmin(admin.ModelAdmin):
+    list_display = ("title", "advertiser", "placement", "is_active", "starts_at", "ends_at", "priority")
+    list_filter = ("placement", "is_active")
+    search_fields = ("title", "advertiser")
+    list_editable = ("is_active", "priority")
+    readonly_fields = ("created_at",)
+    date_hierarchy = "created_at"
