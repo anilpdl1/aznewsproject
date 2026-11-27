@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
 
@@ -55,7 +56,6 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
-
 
 class Comment(models.Model):
     article = models.ForeignKey(
@@ -136,3 +136,38 @@ class HomepageVideo(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Advertisement(models.Model):
+    class Placement(models.TextChoices):
+        HEADER = "header", "Header banner"
+        HOMEPAGE = "homepage", "Homepage"
+        SIDEBAR = "sidebar", "Sidebar"
+        ARTICLE = "article", "Article page"
+
+    title = models.CharField(max_length=150)
+    advertiser = models.CharField(max_length=150, blank=True)
+    image = models.ImageField(upload_to="advertisements/")
+    target_url = models.URLField()
+    placement = models.CharField(max_length=20, choices=Placement.choices)
+    is_active = models.BooleanField(default=True)
+    starts_at = models.DateTimeField(blank=True, null=True)
+    ends_at = models.DateTimeField(blank=True, null=True)
+    priority = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-priority", "-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(ends_at__isnull=True) | models.Q(starts_at__isnull=True) | models.Q(ends_at__gte=models.F("starts_at")),
+                name="ad_end_after_start",
+            )
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def clean(self):
+        if self.starts_at and self.ends_at and self.ends_at < self.starts_at:
+            raise ValidationError({"ends_at": "End time must be on or after the start time."})

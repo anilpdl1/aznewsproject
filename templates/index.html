@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static advertisements %}
 
 {% block title %}Home | News HTML-5 Template{% endblock %}
 
@@ -7,6 +7,8 @@
 {% block preloader %}{% endblock %}
 
 {% block content %}
+
+{% advertisement_slot "homepage" %}
 
 {% if ticker_articles %}
 <section class="breaking-news-area py-2" aria-label="Latest headlines">

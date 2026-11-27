@@ -1,6 +1,12 @@
 """Shared, request-scoped template context."""
 
+from django.conf import settings
+
 from .models import Category
+
+
+def advertising_config(request):
+    return {"ADSENSE_CLIENT_ID": getattr(settings, "ADSENSE_CLIENT_ID", "")}
 
 
 def get_global_categories(request):

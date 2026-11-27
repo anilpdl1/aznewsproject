@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static news_tags %} {% block title %}{{ article.title }}
+{% extends 'base.html' %} {% load static news_tags advertisements %} {% block title %}{{ article.title }}
 | News{% endblock %} {% block content %}
 <div class="about-area">
   <div class="container">
@@ -36,6 +36,7 @@
       </div>
       <aside class="col-lg-4">
         <div class="blog_right_sidebar">
+          {% advertisement_slot "article" %}
           <h3>Related News</h3>
           {% for related in related_articles %}
           <article class="media post_item">
